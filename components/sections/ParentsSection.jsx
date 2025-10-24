@@ -157,6 +157,28 @@ export default function ParentsSection() {
                   </div>
                 </div>
                 
+                {/* Card de Chambelan */}
+                <div className={`${getAnimationClass(godparentsVisible, 'slide-in-right', 'delay-600')} parent-card`}>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:border-white/40 transition-all duration-300">
+                    <div className="flex items-center justify-center mb-4">
+                      <span className="text-3xl animate-heart-beat mr-2">🤝</span>
+                      <h3 className={godparentsVisible ? completeClass : basicClass}>
+                        Mi Chambelán
+                      </h3>
+                      <span className="text-3xl animate-heart-beat ml-2">🤝</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-lg">🤵</span>
+                        <p className="text-xl font-medium text-glow">
+                          {quinceMainData.event.chambelan}
+                        </p>
+                      </div>
+                      
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>

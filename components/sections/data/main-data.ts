@@ -1,8 +1,8 @@
 export const quinceMainData = {
   hero: {
-    name: "Ericka",
+    name: "Ericka Jaqueline",
     subtitle: "¡Mis XV años!",
-    backgroundImage: "/images/kendra01.jpg",
+    backgroundImage: "/images/ericka02.jpg",
     quote:
       "La vida es un viaje mágico, y hoy celebro un capítulo especial lleno de sueños y esperanza.",
     backgroundCarrouselImages: [
@@ -18,10 +18,10 @@ export const quinceMainData = {
     backgroundImage: "/images/aurora_1.jpeg",
   },
   event: {
-    celebrant: "Ericka Martínez Sanchez",
+    celebrant: "Ericka Jaqueline",
     parents: {
-      father: "Andres Martínez",
-      mother: "Maria de Jesús Sanchez",
+      father: "Juan Ivan Campos Montijo",
+      mother: "Adriana Celene Ayala Acuña",
       message: `Hoy, mi corazón rebosa de gratitud. 
                 Doy gracias a Dios por cada paso de mi vida y a mis padres  
                 por cuidarme y guiarme en este camino.
@@ -29,19 +29,20 @@ export const quinceMainData = {
                 Hoy, yo agradezco a Dios por ellos, por su infinito amor y paciencia.`,
       backgroundImage: "/images/frozen1.jpeg",
     },
-    //Padrino Ma. Asunción Ramirez y Juan Gutiérrez
+    
     godparents: {
-      godfather: "Juan Hernández",
-      godmother: "Ma. Asunción Jiménez",
+      godfather: "Luis Jaime Molina",
+      godmother: "Cinthya Soledad Acuña Hernández",
     },
+    chambelan: "Josmar López Montiel",
     date: {
-      full: "Sábado 27 de Diciembre 2025",
-      isoDate: "2025-12-27T13:00:00",
-      day: "Sábado",
-      dayNumber: "27",
-      month: "Diciembre",
+      full: "Viernes 14 de Noviembre 2025",
+      isoDate: "2025-11-14T20:00:00",
+      day: "Viernes",
+      dayNumber: "14",
+      month: "Noviembre",
       year: "2025",
-      date: "27 de Diciembre 2025",
+      date: "14 de Noviembre 2025",
       mensaje1: "¡La cuenta regresiva ha comenzado!",
       mensaje2: "TAN SOLO FALTAN",
       backgroundCarrouselImages: [
@@ -55,21 +56,21 @@ export const quinceMainData = {
     },
     //Misa a la 1pm parroquia Santa fe de Guadalupe, la Sauceda Guanajuato.
     ceremony: {
-      time: "13:00 hrs.",
-      venue: "Parroquia Santa Fe de Guadalupe",
-      address: "Santa fe de Guadalupe, la Sauceda Guanajuato.",
+      time: "15:00 hrs.",
+      venue: "Parroquia San Juan Bautista Sábado 8 de Noviembre",
+      address: "Sierra san Pedro marti y sierra de la victoria col. 8 de octubre 2da sección",
       type: "Misa de Acción de Gracias",
-      ubiLink: "https://maps.app.goo.gl/WfeVYukpQg3CWC2T8",
+      ubiLink: "https://maps.app.goo.gl/RPFe5TaTsARF7ypQ6",
       ceremonyImage: "/images/quince6.jpeg",
     },
     party: {
-      time: "14:00 hrs.",
-      venue: "Salón Texano",
-      address: "Santa fe de Guadalupe, la Sauceda Guanajuato.",
+      time: "20:00 hrs.",
+      venue: "Salón Los Parras Viernes 14 de Noviembre",
+      address: "Calle regidor y Gil B. Morales col. Camino real",
       type: "Recepción",
-      ubiLink: "https://maps.app.goo.gl/qNFsbPPuwyCSMUim9",
+      ubiLink: "https://maps.app.goo.gl/DkXoGsWBpUtEnXkR7",
     },
-    dressCode: "Formal - Rosa solo la quinceañera",
+    dressCode: "Formal - Azul solo la quinceañera",
     restrictions: "",
   },
   timeline: {
@@ -187,32 +188,14 @@ export const quinceMainData = {
       "Agradezco de corazón tu generosidad y apoyo en este día tan especial. ¡Gracias por ser parte de mi vida!",
     giftsOptions: [
       {
-        id: "lluviaSobres",
-        name: "Lluvia de Sobres",
+        id: "regaloSorpresa",
+        name: "Regalo Sorpresa",
         icon: "💌",
         description:
-          "Tu presencia es el mejor regalo, pero si deseas contribuir, una lluvia de sobres sería muy apreciada.",
+          "Tu presencia es el mejor regalo, pero si lo deseas, un regalo sorpresa sería muy apreciado.",
         image: "/images/gifts/envelope.png",
         link: "https://example.com/lluvia-de-sobres",
       },
-      {
-        id: "transferencia",
-        name: "Transferencia Bancaria",
-        icon: "🏦",
-        description:
-          "Si prefieres, puedes hacer una transferencia bancaria como regalo.",
-        image: "/images/gifts/bank-transfer.png",
-        link: "https://example.com/transferencia-bancaria",
-      },
-      {
-        id: "mesaRegalos",
-        name: "Mesa de Regalos",
-        icon: "🎁",
-        description:
-          "Hemos creado una mesa de regalos con opciones que nos encantaría recibir.",
-        image: "/images/gifts/gift-box.png",
-        link: "https://example.com/mesa-de-regalos",
-      }
     ],
   },
   gallery: {
