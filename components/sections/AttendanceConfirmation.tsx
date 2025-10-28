@@ -485,17 +485,50 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
               >
                 ¿Te parece complicado? 🤔
               </p>
-              <button
-                onClick={copyMessageToClipboard}
-                className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg mb-2"
-                style={{
-                  background: "linear-gradient(135deg, #10B981, #059669)",
-                  color: "white"
-                }}
-              >
-                📋 Copiar mensaje y enviar manualmente
-              </button>
-              <p className="text-xs opacity-75" style={{ color: "var(--color-aurora-lavanda)" }}>
+              <div className="space-y-2">
+                <button
+                  onClick={copyMessageToClipboard}
+                  className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
+                  style={{
+                    background: "linear-gradient(135deg, #10B981, #059669)",
+                    color: "white"
+                  }}
+                >
+                  📋 Copiar mensaje y enviar manualmente
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPopupModal(false);
+                    // Construir el mensaje igual que en processConfirmation
+                    const confirmacionTexto = formData.confirmacion === "si" ? "✅ ¡Confirmo mi asistencia!" : "❌ No podré asistir";
+                    const invitadosTexto = formData.numeroInvitados === 1 ? "1 persona" : `${formData.numeroInvitados} personas`;
+                    const mensaje = `🎉 *CONFIRMACIÓN DE ASISTENCIA* 🎉
+
+👤 *Nombre:* ${formData.nombre}
+${formData.telefono ? `📱 *Teléfono:* ${formData.telefono}` : ""}
+
+${confirmacionTexto}
+👥 *Número de invitados:* ${invitadosTexto}
+
+${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
+
+¡Gracias por responder! 💖✨`;
+                    const mensajeCodificado = encodeURIComponent(mensaje);
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
+                    
+                    // Redirección directa en la misma ventana
+                    window.location.href = whatsappUrl;
+                  }}
+                  className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
+                  style={{
+                    background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
+                    color: "white"
+                  }}
+                >
+                  🔗 Abrir WhatsApp aquí mismo
+                </button>
+              </div>
+              <p className="text-xs opacity-75 mt-2" style={{ color: "var(--color-aurora-lavanda)" }}>
                 📱 WhatsApp: +52 1 871 124 9363
               </p>
             </div>
@@ -529,10 +562,45 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
             </button>
           </div>
 
+          {/* Opción adicional: Abrir en misma ventana */}
+          <div className="mt-4 pt-3 border-t border-gray-200">
+            <p className="text-xs text-gray-500 mb-3 text-center">¿No quieres configurar pop-ups?</p>
+            <button
+              onClick={() => {
+                setShowPopupModal(false);
+                // Construir el mensaje igual que en processConfirmation
+                const confirmacionTexto = formData.confirmacion === "si" ? "✅ ¡Confirmo mi asistencia!" : "❌ No podré asistir";
+                const invitadosTexto = formData.numeroInvitados === 1 ? "1 persona" : `${formData.numeroInvitados} personas`;
+                const mensaje = `🎉 *CONFIRMACIÓN DE ASISTENCIA* 🎉
+
+👤 *Nombre:* ${formData.nombre}
+${formData.telefono ? `📱 *Teléfono:* ${formData.telefono}` : ""}
+
+${confirmacionTexto}
+👥 *Número de invitados:* ${invitadosTexto}
+
+${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
+
+¡Gracias por responder! 💖✨`;
+                const mensajeCodificado = encodeURIComponent(mensaje);
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
+                
+                // Redirección directa en la misma ventana
+                window.location.href = whatsappUrl;
+              }}
+              className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
+                color: "white"
+              }}
+            >
+              🔗 Abrir WhatsApp aquí mismo
+            </button>
+          </div>
+
           {/* Solo para desktop - opción alternativa al final */}
           {!deviceInfo.isMobile && (
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-2">¿No funciona?</p>
+            <div className="mt-3 pt-2 border-t border-gray-100">
               <button
                 onClick={copyMessageToClipboard}
                 className="text-sm underline hover:no-underline transition-all"
