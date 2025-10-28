@@ -232,6 +232,102 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
     }
   };
 
+  // 🆕 Sistema progresivo para abrir WhatsApp
+  const openWhatsAppProgressive = async (whatsappUrl: string, mensaje: string): Promise<boolean> => {
+    console.log("🚀 Iniciando sistema progresivo para WhatsApp...");
+
+    // 1. Validar URL - si es muy larga, ir directo a copiar
+    if (whatsappUrl.length > 2048) {
+      console.log("⚠️ URL muy larga, usando copia directa");
+      return await copyMessageDirectly(mensaje);
+    }
+
+    // 2. Intentar window.open normal
+    console.log("📱 Método 1: Intentando window.open...");
+    try {
+      const popup = window.open(whatsappUrl, '_blank');
+      
+      // Verificar si se abrió correctamente
+      if (popup && !popup.closed) {
+        console.log("✅ WhatsApp abierto exitosamente con window.open");
+        return true;
+      }
+      
+      console.log("❌ window.open falló o fue bloqueado");
+    } catch (error) {
+      console.log("❌ Error en window.open:", error);
+    }
+
+    // 3. Ofrecer abrir en misma ventana
+    console.log("📱 Método 2: Ofreciendo apertura en misma pestaña...");
+    const aceptaRedirect = confirm(
+      "🚫 No se pudo abrir WhatsApp en nueva pestaña.\n\n" +
+      "¿Quieres abrir WhatsApp en esta misma pestaña?\n" +
+      "(Podrás regresar con el botón 'Atrás' del navegador)"
+    );
+
+    if (aceptaRedirect) {
+      console.log("✅ Usuario aceptó redirección");
+      window.location.href = whatsappUrl;
+      return true;
+    }
+
+    // 4. Intentar método de enlace temporal
+    console.log("📱 Método 3: Intentando enlace temporal...");
+    try {
+      const link = document.createElement('a');
+      link.href = whatsappUrl;
+      link.target = '_blank';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Verificar si funcionó (delay para dar tiempo)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("✅ Enlace temporal ejecutado");
+      return true;
+    } catch (error) {
+      console.log("❌ Error en enlace temporal:", error);
+    }
+
+    // 5. Fallback final: copiar al portapapeles
+    console.log("📱 Método 4: Fallback - copiando al portapapeles...");
+    return await copyMessageDirectly(mensaje);
+  };
+
+  // Función auxiliar para copiar mensaje directamente
+  const copyMessageDirectly = async (mensaje: string): Promise<boolean> => {
+    const quiereCopiar = confirm(
+      "🚫 No se pudo abrir WhatsApp automáticamente.\n\n" +
+      "¿Quieres copiar el mensaje de confirmación para enviarlo manualmente?"
+    );
+
+    if (quiereCopiar) {
+      try {
+        await navigator.clipboard.writeText(mensaje);
+        alert(
+          "✅ ¡Mensaje copiado al portapapeles!\n\n" +
+          "Ahora:\n" +
+          "1. Abre WhatsApp manualmente\n" +
+          "2. Busca el contacto: +52 1 871 124 9363\n" +
+          "3. Pega el mensaje (Ctrl+V)\n" +
+          "4. Envía"
+        );
+        return true;
+      } catch (error) {
+        // Fallback si clipboard no funciona
+        prompt(
+          "Copia este mensaje y envíalo por WhatsApp a:\n+52 1 871 124 9363\n\n",
+          mensaje
+        );
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -247,13 +343,13 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
   const handleConfirmAttendance = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificar pop-ups bloqueados ANTES de procesar
-    if (checkPopupBlocked()) {
-      setShowPopupModal(true);
+    // Validación simple
+    if (!formData.nombre.trim()) {
+      alert("Por favor ingresa tu nombre");
       return;
     }
 
-    // Continuar con el procesamiento normal
+    // Procesar directamente con sistema progresivo
     await processConfirmation();
   };
 
@@ -365,64 +461,39 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
       // No mostrar error al usuario - mantener transparencia como especificado
     }
 
-    // Simular delay de envío y abrir WhatsApp (funcionalidad original)
-    setTimeout(() => {
-      console.log("📱 Abriendo WhatsApp...", whatsappUrl);
+    // Simular delay de envío y usar sistema progresivo para WhatsApp
+    setTimeout(async () => {
+      console.log("📱 Iniciando apertura de WhatsApp con sistema progresivo...");
 
-      // Abrir WhatsApp
-      const whatsappWindow = window.open(whatsappUrl, "_blank");
+      // Usar el nuevo sistema progresivo
+      const whatsappAbierto = await openWhatsAppProgressive(whatsappUrl, mensaje);
 
-      if (whatsappWindow) {
-        console.log("✅ WhatsApp abierto exitosamente");
+      if (whatsappAbierto) {
+        console.log("✅ WhatsApp procesado exitosamente");
+        
+        // Mostrar mensaje de éxito
+        setShowSuccess(true);
+        setIsSubmitting(false);
+
+        // Limpiar formulario después de 3 segundos
+        setTimeout(() => {
+          setFormData({
+            nombre: "",
+            telefono: "",
+            numeroInvitados: 1,
+            confirmacion: "si",
+            mensaje: "",
+          });
+          setShowSuccess(false);
+        }, 3000);
       } else {
-        console.error(
-          "❌ No se pudo abrir WhatsApp - posible bloqueador de pop-ups"
-        );
-
-        // Mostrar el mensaje con opción de copiar
-        const confirmarCopia = confirm(
-          "¡Tu confirmación fue guardada exitosamente! 🎉\n\n" +
-            "No se pudo abrir WhatsApp automáticamente (bloqueador de pop-ups).\n\n" +
-            "¿Quieres copiar el mensaje para enviarlo manualmente?"
-        );
-
-        if (confirmarCopia) {
-          // Copiar mensaje al portapapeles
-          navigator.clipboard
-            .writeText(mensaje)
-            .then(() => {
-              alert(
-                "✅ Mensaje copiado al portapapeles!\n\n" +
-                  "Ahora abre WhatsApp manualmente y envía el mensaje a:\n" +
-                  `+${whatsappNumber}`
-              );
-            })
-            .catch(() => {
-              // Fallback si no se puede copiar automáticamente
-              prompt("Copia este mensaje y envíalo por WhatsApp:", mensaje);
-            });
-        }
+        console.log("❌ Usuario canceló el proceso de WhatsApp");
+        setIsSubmitting(false);
       }
-
-      // Mostrar mensaje de éxito
-      setShowSuccess(true);
-      setIsSubmitting(false);
-
-      // Limpiar formulario después de 3 segundos
-      setTimeout(() => {
-        setFormData({
-          nombre: "",
-          telefono: "",
-          numeroInvitados: 1,
-          confirmacion: "si",
-          mensaje: "",
-        });
-        setShowSuccess(false);
-      }, 3000);
     }, 1500);
   };
 
-  // Componente Modal para Pop-up Blocker
+  // Componente Modal simplificado (ahora solo para casos especiales)
   const PopupBlockerModal = () => {
     const instructions = getBrowserInstructions();
     const deviceInfo = getDeviceAndBrowserInfo();
@@ -430,186 +501,38 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div 
-          className="bg-white p-6 rounded-3xl max-w-md w-full text-center shadow-2xl border-2 max-h-[90vh] overflow-y-auto"
+          className="bg-white p-6 rounded-3xl max-w-md w-full text-center shadow-2xl border-2"
           style={{
             background: "linear-gradient(135deg, rgba(255, 179, 217, 0.15) 0%, rgba(248, 246, 240, 0.98) 25%, rgba(230, 217, 255, 0.15) 50%, rgba(255, 242, 204, 0.2) 75%, rgba(253, 252, 252, 0.98) 100%)",
             borderImage: "linear-gradient(45deg, var(--color-aurora-oro), var(--color-aurora-rosa), var(--color-aurora-lavanda)) 1",
           }}
         >
-          {/* Ícono explicativo */}
-          <div className="text-5xl mb-4">🚫➡️📱</div>
+          <div className="text-5xl mb-4">✨✨</div>
           
           <h3 
             className="text-xl font-bold mb-3"
             style={{ color: "var(--color-aurora-lavanda)" }}
           >
-            Pop-ups Bloqueados
+            ¡Confirmación Lista!
           </h3>
           
           <p 
-            className="text-base mb-4 leading-relaxed"
+            className="text-base mb-6 leading-relaxed"
             style={{ color: "var(--color-aurora-rosa)" }}
           >
-            Para abrir WhatsApp automáticamente:
+            Tu confirmación se está procesando con nuestro sistema inteligente de WhatsApp
           </p>
-          
-          {/* Instrucciones específicas */}
-          <div 
-            className="p-4 rounded-2xl mb-4 text-left border"
+
+          <button 
+            onClick={() => setShowPopupModal(false)}
+            className="w-full px-6 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
             style={{
-              backgroundColor: "rgba(255, 242, 204, 0.3)",
-              borderColor: "rgba(255, 179, 217, 0.3)",
-              color: "var(--color-aurora-lavanda)"
+              background: "linear-gradient(135deg, var(--color-aurora-rosa), var(--color-aurora-lavanda))",
+              color: "white"
             }}
           >
-            <h4 className="font-bold mb-2 text-center">{instructions.title}</h4>
-            <div className="text-sm leading-relaxed">
-              {instructions.steps.map((step, index) => (
-                <div key={index} className="mb-1">{step}</div>
-              ))}
-            </div>
-          </div>
-
-          {/* Alternativa para móviles */}
-          {instructions.showAlternative && (
-            <div 
-              className="p-3 rounded-xl mb-4 text-center border-2 border-dashed"
-              style={{
-                backgroundColor: "rgba(255, 179, 217, 0.1)",
-                borderColor: "var(--color-aurora-rosa)"
-              }}
-            >
-              <p 
-                className="text-sm font-medium mb-3"
-                style={{ color: "var(--color-aurora-rosa)" }}
-              >
-                ¿Te parece complicado? 🤔
-              </p>
-              <div className="space-y-2">
-                <button
-                  onClick={copyMessageToClipboard}
-                  className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
-                  style={{
-                    background: "linear-gradient(135deg, #10B981, #059669)",
-                    color: "white"
-                  }}
-                >
-                  📋 Copiar mensaje y enviar manualmente
-                </button>
-                <button
-                  onClick={() => {
-                    setShowPopupModal(false);
-                    // Construir el mensaje igual que en processConfirmation
-                    const confirmacionTexto = formData.confirmacion === "si" ? "✅ ¡Confirmo mi asistencia!" : "❌ No podré asistir";
-                    const invitadosTexto = formData.numeroInvitados === 1 ? "1 persona" : `${formData.numeroInvitados} personas`;
-                    const mensaje = `🎉 *CONFIRMACIÓN DE ASISTENCIA* 🎉
-
-👤 *Nombre:* ${formData.nombre}
-${formData.telefono ? `📱 *Teléfono:* ${formData.telefono}` : ""}
-
-${confirmacionTexto}
-👥 *Número de invitados:* ${invitadosTexto}
-
-${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
-
-¡Gracias por responder! 💖✨`;
-                    const mensajeCodificado = encodeURIComponent(mensaje);
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
-                    
-                    // Redirección directa en la misma ventana
-                    window.location.href = whatsappUrl;
-                  }}
-                  className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
-                  style={{
-                    background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
-                    color: "white"
-                  }}
-                >
-                  🔗 Abrir WhatsApp aquí mismo
-                </button>
-              </div>
-              <p className="text-xs opacity-75 mt-2" style={{ color: "var(--color-aurora-lavanda)" }}>
-                📱 WhatsApp: +52 1 871 124 9363
-              </p>
-            </div>
-          )}
-          
-          {/* Botones principales */}
-          <div className="flex gap-3 flex-col sm:flex-row">
-            <button 
-              onClick={() => setShowPopupModal(false)}
-              className="flex-1 px-6 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-80"
-              style={{
-                backgroundColor: "rgba(156, 163, 175, 0.8)",
-                color: "white"
-              }}
-            >
-              Cancelar
-            </button>
-            <button 
-              onClick={() => {
-                setShowPopupModal(false);
-                // Continuar con el proceso normal después de que el usuario permita pop-ups
-                processConfirmation();
-              }}
-              className="flex-1 px-6 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, var(--color-aurora-rosa), var(--color-aurora-lavanda))",
-                color: "white"
-              }}
-            >
-              ✅ Ya permití, continuar
-            </button>
-          </div>
-
-          {/* Opción adicional: Abrir en misma ventana */}
-          <div className="mt-4 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500 mb-3 text-center">¿No quieres configurar pop-ups?</p>
-            <button
-              onClick={() => {
-                setShowPopupModal(false);
-                // Construir el mensaje igual que en processConfirmation
-                const confirmacionTexto = formData.confirmacion === "si" ? "✅ ¡Confirmo mi asistencia!" : "❌ No podré asistir";
-                const invitadosTexto = formData.numeroInvitados === 1 ? "1 persona" : `${formData.numeroInvitados} personas`;
-                const mensaje = `🎉 *CONFIRMACIÓN DE ASISTENCIA* 🎉
-
-👤 *Nombre:* ${formData.nombre}
-${formData.telefono ? `📱 *Teléfono:* ${formData.telefono}` : ""}
-
-${confirmacionTexto}
-👥 *Número de invitados:* ${invitadosTexto}
-
-${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
-
-¡Gracias por responder! 💖✨`;
-                const mensajeCodificado = encodeURIComponent(mensaje);
-                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
-                
-                // Redirección directa en la misma ventana
-                window.location.href = whatsappUrl;
-              }}
-              className="w-full px-4 py-3 rounded-2xl font-medium transition-all duration-3000 hover:opacity-90 shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
-                color: "white"
-              }}
-            >
-              🔗 Abrir WhatsApp aquí mismo
-            </button>
-          </div>
-
-          {/* Solo para desktop - opción alternativa al final */}
-          {!deviceInfo.isMobile && (
-            <div className="mt-3 pt-2 border-t border-gray-100">
-              <button
-                onClick={copyMessageToClipboard}
-                className="text-sm underline hover:no-underline transition-all"
-                style={{ color: "var(--color-aurora-lavanda)" }}
-              >
-                Copiar mensaje manualmente
-              </button>
-            </div>
-          )}
+            ✅ Entendido
+          </button>
         </div>
       </div>
     );
@@ -942,7 +865,7 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
               }`}>
                 {showSuccess
                   ? "¡Gracias por confirmar! Te esperamos en esta celebración especial 🎉"
-                  : "Al confirmar, recibirás todos los detalles por WhatsApp 💌"}
+                  : "Sistema inteligente: probará múltiples métodos para abrir WhatsApp automáticamente �"}
               </p>
             </div>
           </form>
